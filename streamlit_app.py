@@ -274,7 +274,12 @@ if uploaded_files:
 
         # สร้างกราฟ 2 แกน Y
         fig = make_subplots(specs=[[{"secondary_y": True}]])
-        zone_colors = ["#FF0000", "#008000", "#0000FF", "#8A2BE2"]
+        
+        # สีตามเครื่องจริง: Z#1 Red, Z#2 Blue, Z#3 Green, Z#4 Orange
+        zone_colors = ["#FF3333", "#1E90FF", "#2ED573", "#FF9F1A"]
+        
+        # สี Combustion Air Temp: สีฟ้าสว่าง (Cyan) มองเห็นชัดบน Dark Mode
+        combustion_color = "#00E5FF"
 
         # 1. Zone #1 - #4 (แกน Y ซ้ายมือ)
         for i in range(1, 5):
@@ -296,7 +301,7 @@ if uploaded_files:
                 y=df["Combustion Air Temp"],
                 name="Combustion Air Temp",
                 mode="lines",
-                line=dict(color="#FFA500", width=2, dash="dash")
+                line=dict(color=combustion_color, width=2, dash="dash")
             ),
             secondary_y=True
         )
@@ -336,12 +341,12 @@ if uploaded_files:
                 range=[0, 400]
             ),
             yaxis2=dict(
-                title=dict(text="Combustion Air Temp (°C)", font=dict(color="#FFA500", size=12)),
-                tickfont=dict(color="#FFA500", size=10),
+                title=dict(text="Combustion Air Temp (°C)", font=dict(color=combustion_color, size=12)),
+                tickfont=dict(color=combustion_color, size=10),
                 showgrid=False,
                 overlaying="y",
                 side="right",
-                linecolor="#FFA500",
+                linecolor=combustion_color,
                 range=[0, 150]
             ),
             height=500,
