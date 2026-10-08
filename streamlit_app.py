@@ -232,18 +232,31 @@ def to_excel_bytes(dataframe):
     output.seek(0)
     return output.getvalue()
 
-# 5. เมนู Sidebar
+
+# ========================================================
+# 5. เมนู Sidebar (ปรับปรุงระบบเคลียร์ไฟล์)
+# ========================================================
 st.sidebar.header("📁 เมนูอัปโหลดข้อมูล")
 
+# 5.1 สร้าง State สำหรับตัวแปร Key ของ File Uploader
+if "file_uploader_key" not in st.session_state:
+    st.session_state["file_uploader_key"] = 0
+
+# 5.2 เมื่อกดปุ่ม ให้เพิ่มค่า Key ขึ้น 1 (เป็นการบังคับรีเซ็ต Widget)
 if st.sidebar.button("🧹 เคลียร์ข้อมูลไฟล์เก่าทั้งหมด"):
     st.cache_data.clear()
+    st.session_state["file_uploader_key"] += 1 
     st.rerun()
 
+# 5.3 ส่งค่า Key เข้าไปในกล่องอัปโหลด
 uploaded_files = st.sidebar.file_uploader(
     "อัปโหลดไฟล์ CSV (.csv) ได้มากกว่า 1 ไฟล์", 
     type=["csv"],
-    accept_multiple_files=True
+    accept_multiple_files=True,
+    key=f"uploader_{st.session_state['file_uploader_key']}" 
 )
+# ========================================================
+
 
 # 6. แสดงผลกราฟและปุ่มเลือกดาวน์โหลด Excel
 if uploaded_files:
