@@ -4,7 +4,7 @@ from plotly.subplots import make_subplots
 import streamlit as st
 import io
 
-# 1. ตั้งค่า Page Config
+# 1. ตั้งค่า Page Config (แสดง Sidebar ค้างไว้เป็นค่าเริ่มต้น)
 st.set_page_config(
     page_title="Recorder NB1 Debinder",
     page_icon="🏭",
@@ -12,143 +12,18 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. บังคับ Dark Mode CSS และตั้งค่าตัวหนังสือปุ่มดาวน์โหลดเป็นสีขาว
+# 2. CSS คลีนๆ เพื่อเปิดเมนูขวาบน (System/Light/Dark) และปุ่มเปิด-ปิด Sidebar
 st.markdown("""
     <style>
-        /* ซ่อนแถบขาว Header ด้านบน */
-        header[data-testid="stHeader"] {
-            background-color: transparent !important;
-            display: none !important;
-        }
-        [data-testid="stToolbar"] {
-            display: none !important;
-        }
+        /* ซ่อนเฉพาะปุ่ม Deploy และ Footer */
+        .stDeployButton { display: none !important; }
+        footer { visibility: hidden !important; display: none !important; }
         
-        /* ตั้งค่าพื้นหลัง Dark Mode */
-        html, body, .stApp, [data-testid="stAppViewContainer"] {
-            background-color: #0e1117 !important;
-            color: #ffffff !important;
-        }
-        [data-testid="stSidebar"] {
-            background-color: #161b22 !important;
-        }
-        .stMarkdown, h1, h2, h3, p, span, label {
-            color: #ffffff !important;
-        }
-
-        /* ปุ่มเคลียร์ข้อมูลใน Sidebar */
-        [data-testid="stSidebar"] div.stButton > button {
-            background-color: #21262d !important;
-            color: #ffffff !important;
-            border: 1px solid #F0B90B !important;
-            font-weight: bold !important;
-            width: 100% !important;
-            padding: 8px 16px !important;
-        }
-        [data-testid="stSidebar"] div.stButton > button:hover {
-            background-color: #F0B90B !important;
-            color: #000000 !important;
-        }
-
-        /* กล่อง File Uploader */
-        [data-testid="stFileUploader"] {
-            background-color: #161b22 !important;
-            border: 1.5px solid #F0B90B !important;
-            border-radius: 8px !important;
-            padding: 10px !important;
-        }
-        [data-testid="stFileUploader"] section {
-            background-color: #1c2128 !important;
-            border: 1px dashed #F0B90B !important;
-            border-radius: 6px !important;
-        }
-        [data-testid="stFileUploader"] section div, 
-        [data-testid="stFileUploader"] section span,
-        [data-testid="stFileUploader"] section small {
-            color: #e6edf3 !important;
-        }
-
-        /* การ์ดไฟล์ที่อัปโหลดแล้ว */
-        [data-testid="stFileUploaderFileData"],
-        [data-testid="stFileUploaderFileData"] > div,
-        [data-testid="stFileUploaderFile"] {
-            background-color: #21262d !important;
-            border: 1px solid #F0B90B !important;
-            border-radius: 6px !important;
-        }
-        [data-testid="stFileUploaderFileData"] *,
-        [data-testid="stFileUploaderFile"] * {
-            color: #ffffff !important;
-            font-weight: bold !important;
-        }
-
-        /* 1. ปรับแถบ Expander */
-        [data-testid="stExpander"] {
-            background-color: #161b22 !important;
-            border: 1px solid #30363d !important;
-            border-radius: 8px !important;
-        }
-        [data-testid="stExpander"] details summary {
-            background-color: #21262d !important;
-            color: #ffffff !important;
-            border-radius: 8px !important;
-        }
-        [data-testid="stExpander"] details summary * {
-            color: #ffffff !important;
-        }
-
-        /* 2. ปรับแต่งตาราง Dataframe */
-        [data-testid="stDataFrame"] {
-            background-color: #161b22 !important;
-            border: 1px solid #30363d !important;
-            border-radius: 8px !important;
-        }
-        div[data-testid="stDataFrame"] div[role="grid"] {
-            background-color: #161b22 !important;
-            color: #ffffff !important;
-        }
-        div[data-testid="stDataFrame"] div[role="columnheader"] {
-            background-color: #21262d !important;
-            color: #ffffff !important;
-        }
-
-        /* 3. ปรับแต่งกล่องพิมพ์ข้อความ (Text Input) */
-        div[data-baseweb="input"] {
-            background-color: #21262d !important;
-            border: 1px solid #30363d !important;
-            color: #ffffff !important;
-            border-radius: 6px !important;
-        }
-        div[data-baseweb="input"] input {
-            background-color: #21262d !important;
-            color: #ffffff !important;
-        }
-
-        /* 4. ปรับแต่งปุ่มดาวน์โหลด Excel (บังคับข้อความให้เป็นสีขาวสด) */
-        div.stDownloadButton > button {
-            background-color: #21262d !important;
-            border: 1.5px solid #F0B90B !important;
-            border-radius: 6px !important;
-            padding: 8px 16px !important;
-            transition: all 0.2s ease-in-out;
-        }
-        div.stDownloadButton > button, 
-        div.stDownloadButton > button *,
-        div.stDownloadButton > button p,
-        div.stDownloadButton > button span {
-            color: #ffffff !important;
-            font-weight: bold !important;
-            font-size: 15px !important;
-        }
-        div.stDownloadButton > button:hover {
-            background-color: #F0B90B !important;
-            border-color: #F0B90B !important;
-        }
-        div.stDownloadButton > button:hover,
-        div.stDownloadButton > button:hover *,
-        div.stDownloadButton > button:hover p,
-        div.stDownloadButton > button:hover span {
-            color: #000000 !important;
+        /* ตกแต่งไอคอนลูกศรเปิด-ปิด Sidebar ให้เป็นสีเหลืองทอง มองเห็นเด่นชัดทุกโหมด */
+        [data-testid="collapsedControl"] svg,
+        [data-testid="stSidebarCollapseButton"] svg {
+            fill: #F0B90B !important;
+            color: #F0B90B !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -156,7 +31,7 @@ st.markdown("""
 # 3. แสดงชื่อโปรแกรมหลัก
 st.title("🏭 Recorder NB1 Debinder")
 
-# 4. ฟังก์ชันอ่านไฟล์ทีละบรรทัดและดึงคอลัมน์ตรงๆ
+# 4. ฟังก์ชันอ่านไฟล์พร้อมระบบตรวจเช็คไฟล์ Recorder NB1 Debinder อัตโนมัติ
 def parse_single_file(uploaded_file):
     uploaded_file.seek(0)
     raw_bytes = uploaded_file.read()
@@ -175,6 +50,17 @@ def parse_single_file(uploaded_file):
     lines = text_content.splitlines()
     parsed_rows = []
     
+    # 🔍 ตรวจสอบเบื้องต้นว่าเป็นไฟล์ของ Recorder NB1 Debinder หรือไม่
+    is_debinder_file = False
+    for line in lines[:50]:
+        # ต้องมีข้อมูลของ Debinder / TH_CH1 ถึง TH_CH5
+        if "TH_CH1" in line or "TH_CH" in line or "Debinder" in line or line.startswith("20"):
+            is_debinder_file = True
+            break
+            
+    if not is_debinder_file:
+        return None  # คืนค่า None เพื่อแจ้งเตือนว่าไม่ใช่ไฟล์ NB1 Debinder
+
     for line in lines:
         line_str = line.strip()
         if line_str.startswith("20") and "," in line_str:
@@ -183,10 +69,10 @@ def parse_single_file(uploaded_file):
             if len(parts) >= 17:
                 try:
                     dt_val = parts[0]
-                    z1 = float(parts[4])   # TH_CH1Ave.
-                    z2 = float(parts[7])   # TH_CH2Ave.
-                    z3 = float(parts[10])  # TH_CH3Ave.
-                    z4 = float(parts[13])  # TH_CH4Ave.
+                    z1 = float(parts[4])    # TH_CH1Ave.
+                    z2 = float(parts[7])    # TH_CH2Ave.
+                    z3 = float(parts[10])   # TH_CH3Ave.
+                    z4 = float(parts[13])   # TH_CH4Ave.
                     comb = float(parts[16]) # TH_CH5Ave.
                     
                     parsed_rows.append({
@@ -209,11 +95,25 @@ def parse_single_file(uploaded_file):
 
 def process_multiple_files(uploaded_files):
     combined_dfs = []
+    invalid_files = []
+
     for file in uploaded_files:
         df_single = parse_single_file(file)
-        if not df_single.empty:
+        if df_single is None:
+            invalid_files.append(file.name)
+        elif not df_single.empty:
             combined_dfs.append(df_single)
             
+    # 🚨 แจ้งเตือนและหยุดทำงานทันทีหากพบไฟล์ที่ไม่ใช่ RECORDER NB1 Debinder
+    if invalid_files:
+        invalid_file_names = ", ".join(f"'{name}'" for name in invalid_files)
+        st.error(
+            f"❌ **ตรวจพบไฟล์ที่ไม่ใช่ RECORDER NB1 DEBINDER:** {invalid_file_names}\n\n"
+            f"📌 *สาเหตุ:* โครงสร้างคอลัมน์ไม่ตรงตามมาตรฐานของ Recorder NB1 Debinder\n\n"
+            f"กรุณากดปุ่ม **'🧹 เคลียร์ข้อมูลไฟล์เก่าทั้งหมด'** ด้านซ้าย แล้วเลือกอัปโหลดไฟล์ใหม่อีกครั้ง"
+        )
+        st.stop()  # หยุดการทำงานทันที
+
     if not combined_dfs:
         return pd.DataFrame()
 
@@ -243,7 +143,7 @@ if "file_uploader_key" not in st.session_state:
     st.session_state["file_uploader_key"] = 0
 
 # 5.2 เมื่อกดปุ่ม ให้เพิ่มค่า Key ขึ้น 1 (เป็นการบังคับรีเซ็ต Widget)
-if st.sidebar.button("🧹 เคลียร์ข้อมูลไฟล์เก่าทั้งหมด"):
+if st.sidebar.button("🧹 เคลียร์ข้อมูลไฟล์เก่าทั้งหมด", type="primary"):
     st.cache_data.clear()
     st.session_state["file_uploader_key"] += 1 
     st.rerun()
@@ -263,7 +163,7 @@ if uploaded_files:
     raw_df = process_multiple_files(uploaded_files)
     
     if raw_df.empty:
-        st.error("⚠️ ไม่สามารถอ่านข้อมูลจากไฟล์ที่อัปโหลดได้ กรุณาตรวจสอบว่าเป็นไฟล์ CSV จากเครื่อง Recorder หรือไม่")
+        st.error("⚠️ ไม่สามารถอ่านข้อมูลจากไฟล์ที่อัปโหลดได้ กรุณาตรวจสอบว่าเป็นไฟล์ CSV จากเครื่อง Recorder NB1 Debinder หรือไม่")
     else:
         st.sidebar.success(f"รวมข้อมูลสำเร็จ {len(uploaded_files)} ไฟล์ ({len(raw_df)} แถว)")
 
@@ -290,8 +190,6 @@ if uploaded_files:
         
         # สีตามเครื่องจริง: Z#1 Red, Z#2 Blue, Z#3 Green, Z#4 Orange
         zone_colors = ["#FF3333", "#1E90FF", "#2ED573", "#FF9F1A"]
-        
-        # สี Combustion Air Temp: สีฟ้าสว่าง (Cyan) มองเห็นชัดบน Dark Mode
         combustion_color = "#00E5FF"
 
         # 1. Zone #1 - #4 (แกน Y ซ้ายมือ)
@@ -320,16 +218,9 @@ if uploaded_files:
         )
 
         fig.update_layout(
-            template="plotly_dark",
-            plot_bgcolor="#161b22",
-            paper_bgcolor="#0e1117",
             hovermode="x unified",
             showlegend=True,
             legend=dict(
-                font=dict(color="#FFFFFF", size=12, family="Arial Bold"),
-                bgcolor="rgba(27, 31, 36, 0.95)",
-                bordercolor="#F0B90B",
-                borderwidth=1.5,
                 orientation="v",
                 yanchor="top",
                 y=1,
@@ -337,36 +228,29 @@ if uploaded_files:
                 x=1.05
             ),
             xaxis=dict(
-                title=dict(text="Date & Time", font=dict(color="#FFFFFF", size=12)),
-                tickfont=dict(color="#CCCCCC", size=10),
+                title=dict(text="Date & Time"),
                 showgrid=True,
-                gridcolor="rgba(255,255,255,0.08)",
-                linecolor="#555555",
                 type="date"
             ),
             yaxis=dict(
-                title=dict(text="Zone Temperature (°C)", font=dict(color="#FFFFFF", size=12)),
-                tickfont=dict(color="#CCCCCC", size=10),
+                title=dict(text="Zone Temperature (°C)"),
                 showgrid=True,
-                gridcolor="rgba(255,255,255,0.08)",
                 zeroline=False,
-                linecolor="#555555",
                 range=[0, 400]
             ),
             yaxis2=dict(
-                title=dict(text="Combustion Air Temp (°C)", font=dict(color=combustion_color, size=12)),
-                tickfont=dict(color=combustion_color, size=10),
+                title=dict(text="Combustion Air Temp (°C)"),
                 showgrid=False,
                 overlaying="y",
                 side="right",
-                linecolor=combustion_color,
                 range=[0, 150]
             ),
             height=500,
             margin=dict(l=60, r=180, t=30, b=40)
         )
 
-        st.plotly_chart(fig, use_container_width=True)
+        # รองรับการสลับโทนสี Light/Dark ตามธีมหลัก Streamlit
+        st.plotly_chart(fig, use_container_width=True, theme="streamlit")
 
         # ส่วนตรวจสอบและเลือกดาวน์โหลด Excel (.xlsx)
         with st.expander("📋 ตรวจสอบและเลือกดาวน์โหลดตารางข้อมูล Excel (.xlsx)"):
@@ -392,7 +276,8 @@ if uploaded_files:
                     data=excel_bytes,
                     file_name=custom_filename,
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    use_container_width=True
+                    use_container_width=True,
+                    type="primary"
                 )
 
 else:
